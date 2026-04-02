@@ -1,0 +1,225 @@
+ @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap');
+
+  :root {
+    --bg: #080503;
+    --amber: #c8963c;
+    --amber-dark: #7a4e14;
+    --amber-light: #f0c870;
+    --parchment: #d4b483;
+    --red: #8b1a1a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--parchment);
+    font-family: 'Cinzel', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 45% at 50% 0%, rgba(90,50,5,0.4) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(50,15,3,0.5) 0%, transparent 70%);
+    pointer-events:none; z-index:0;
+  }
+
+  header {
+    position:relative; z-index:10;
+    text-align:center;
+    padding: 1.6rem 1rem 0.4rem;
+  }
+  header h1 {
+    font-family:'Cinzel Decorative', cursive;
+    font-size: clamp(1.3rem, 4.5vw, 2.8rem);
+    letter-spacing: 0.18em;
+    color: var(--amber-light);
+    text-shadow: 0 0 30px rgba(200,150,60,0.7), 0 0 70px rgba(200,150,60,0.25);
+  }
+  header p {
+    font-family:'IM Fell English', serif;
+    font-style:italic;
+    color: var(--amber-dark);
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+    letter-spacing: 0.1em;
+  }
+
+  .divider {
+    width: 320px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--amber), transparent);
+    margin: 0.7rem auto;
+    position:relative; z-index:10;
+  }
+  .divider::before {
+    content:'✦';
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    color:var(--amber); font-size:0.55rem;
+    background:var(--bg); padding:0 6px;
+  }
+
+  #scene-wrapper {
+    position:relative; z-index:10;
+    width:100%; max-width:960px;
+    margin:0 auto; padding:0 0.5rem;
+  }
+
+  #canvas-container {
+    width:100%; aspect-ratio:16/9;
+    position:relative;
+    border:1px solid rgba(200,150,60,0.2);
+    box-shadow: 0 0 80px rgba(80,40,5,0.5), inset 0 0 50px rgba(0,0,0,0.6);
+    border-radius:3px; overflow:hidden;
+    background:radial-gradient(ellipse at center, #160b03 0%, #060402 100%);
+  }
+  #canvas-container canvas { width:100%!important; height:100%!important; display:block; }
+
+  /* Candle decorations */
+  .candle { position:absolute; top:12px; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:5; }
+  .candle-left { left:16px; }
+  .candle-right { right:16px; }
+  .flame {
+    width:9px; height:15px;
+    background:radial-gradient(ellipse at 50% 75%, #fff9e6 0%, #ffe082 25%, #ff8f00 70%, transparent 100%);
+    border-radius:50% 50% 30% 30%;
+    animation:flicker 1.8s ease-in-out infinite alternate;
+    box-shadow:0 0 10px #ffd54f, 0 0 20px rgba(255,180,0,0.35);
+    transform-origin:bottom center;
+  }
+  .candle-body {
+    width:11px; height:44px;
+    background:linear-gradient(to right, #e0d5bc, #f5f0e0, #cdc3a5);
+    border-radius:2px 2px 1px 1px;
+  }
+  @keyframes flicker {
+    0%   { transform:scaleX(1) scaleY(1) rotate(-2deg); opacity:1; }
+    30%  { transform:scaleX(0.82) scaleY(1.12) rotate(1.5deg); opacity:0.94; }
+    65%  { transform:scaleX(1.06) scaleY(0.93) rotate(-1deg); opacity:0.98; }
+    100% { transform:scaleX(0.88) scaleY(1.07) rotate(2.5deg); opacity:0.97; }
+  }
+
+  /* Loading overlay */
+  #loading {
+    position:absolute; inset:0;
+    background:rgba(4,2,1,0.88);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    z-index:100; gap:1.1rem;
+  }
+  #loading p {
+    font-family:'IM Fell English', serif;
+    font-style:italic; font-size:1rem;
+    color:var(--amber);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  .spinner {
+    width:38px; height:38px;
+    border:2px solid rgba(200,150,60,0.18);
+    border-top-color:var(--amber);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @keyframes pulse { 0%,100%{opacity:0.55;} 50%{opacity:1;} }
+
+  /* Controls */
+  #controls {
+    position:relative; z-index:10;
+    width:100%; max-width:960px;
+    margin:0 auto; padding:1rem 0.5rem 0.5rem;
+    display:flex; gap:0.75rem; align-items:center;
+  }
+  #question-input {
+    flex:1;
+    background:rgba(15,8,2,0.9);
+    border:1px solid rgba(200,150,60,0.3);
+    border-radius:3px;
+    color:var(--parchment);
+    padding:0.7rem 1rem;
+    font-family:'Cinzel', serif;
+    font-size:0.9rem; letter-spacing:0.05em;
+    outline:none;
+    transition:border-color 0.3s, box-shadow 0.3s;
+  }
+  #question-input:focus {
+    border-color:var(--amber);
+    box-shadow:0 0 18px rgba(200,150,60,0.18);
+  }
+  #question-input::placeholder { color:rgba(180,140,80,0.35); font-style:italic; }
+
+  .btn-ask {
+    background:linear-gradient(135deg, #7a4e14, #c8963c, #7a4e14);
+    border:1px solid var(--amber);
+    color:#100800;
+    padding:0.7rem 1.6rem;
+    font-family:'Cinzel Decorative', cursive;
+    font-size:0.75rem; font-weight:700;
+    letter-spacing:0.12em;
+    cursor:pointer; border-radius:3px;
+    transition:all 0.3s;
+  }
+  .btn-ask:hover:not(:disabled) {
+    background:linear-gradient(135deg, #c8963c, #f0c870, #c8963c);
+    box-shadow:0 0 22px rgba(200,150,60,0.55);
+    transform:translateY(-1px);
+  }
+  .btn-ask:disabled { opacity:0.45; cursor:not-allowed; }
+
+  /* Output */
+  #output-panel {
+    position:relative; z-index:10;
+    width:100%; max-width:960px;
+    margin:0 auto; padding:0 0.5rem 0.7rem;
+  }
+  #output-box {
+    background:rgba(8,4,1,0.92);
+    border:1px solid rgba(200,150,60,0.2);
+    border-radius:3px;
+    padding:0.9rem 1.4rem;
+    min-height:76px;
+    display:flex; flex-direction:column; gap:0.35rem;
+  }
+  .output-label {
+    font-size:0.56rem; letter-spacing:0.35em;
+    color:var(--amber-dark); text-transform:uppercase;
+  }
+  #output-text {
+    font-family:'Cinzel Decorative', cursive;
+    font-size:clamp(1rem, 3.5vw, 1.8rem);
+    color:var(--amber-light);
+    text-shadow:0 0 22px rgba(200,150,60,0.6);
+    letter-spacing:0.22em; min-height:2.1rem;
+    word-break:break-all;
+    transition:text-shadow 0.2s;
+  }
+  #output-text.flash {
+    text-shadow:0 0 40px rgba(200,150,60,1), 0 0 80px rgba(200,150,60,0.5);
+  }
+  #current-letter {
+    font-size:0.75rem; color:var(--amber);
+    font-family:'IM Fell English', serif; font-style:italic;
+    min-height:1.2rem; transition:opacity 0.3s;
+  }
+
+  #status {
+    position:relative; z-index:10;
+    text-align:center; padding:0.25rem 1rem;
+    font-family:'IM Fell English', serif; font-style:italic;
+    font-size:0.82rem; color:var(--amber-dark);
+    min-height:1.4rem;
+  }
+
+  footer {
+    position:relative; z-index:10;
+    padding:0.8rem 1rem;
+    font-family:'IM Fell English', serif; font-style:italic;
+    font-size:0.68rem; color:rgba(130,90,30,0.38);
+    text-align:center; letter-spacing:0.1em;
+  }

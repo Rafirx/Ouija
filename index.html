@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Speaking Board</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>The Speaking Board</h1>
+  <p>Ask, and the spirits shall answer…</p>
+</header>
+<div class="divider"></div>
+<div id="status">Awakening the ancient board…</div>
+
+<div id="scene-wrapper">
+  <div id="canvas-container">
+    <div id="loading">
+      <div class="spinner"></div>
+      <p id="load-msg">Summoning from the beyond…</p>
+    </div>
+    <div class="candle candle-left"><div class="flame"></div><div class="candle-body"></div></div>
+    <div class="candle candle-right"><div class="flame"></div><div class="candle-body"></div></div>
+  </div>
+</div>
+
+<div id="controls">
+  <input type="text" id="question-input" placeholder="Ask your question to the spirits…" maxlength="150" />
+  <button class="btn-ask" id="ask-btn" disabled onclick="window.askQuestion()">Ask</button>
+</div>
+
+<div id="output-panel">
+  <div id="output-box">
+    <div class="output-label">The Board Speaks</div>
+    <div id="output-text">—</div>
+    <div id="current-letter"></div>
+  </div>
+</div>
+
+<footer>✦ For entertainment purposes only ✦</footer>
+
+<!-- Three.js r128 (global build) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
