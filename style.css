@@ -81,6 +81,14 @@
   }
   #canvas-container canvas { width:100%!important; height:100%!important; display:block; }
 
+  @media (max-width: 600px) {
+    #canvas-container { aspect-ratio: 4/5; }
+    #controls { flex-direction: column; }
+    .btn-ask { width: 100%; }
+    header h1 { font-size: 1.8rem; }
+    .divider { width: 80%; }
+  }
+
   /* Candle decorations */
   .candle { position:absolute; top:12px; display:flex; flex-direction:column; align-items:center; pointer-events:none; z-index:5; }
   .candle-left { left:16px; }

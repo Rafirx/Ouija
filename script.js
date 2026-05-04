@@ -274,39 +274,71 @@ function movePlanchetteTo(worldPos, dur, cb){
   }
 })();
 
-// ── Generate AI response ──────────────────────────────────────────────
+// ── Audio Output (Spirit Voice) ───────────────────────────────────────
+function speakAnswer(text) {
+  if (!window.speechSynthesis) return;
+  
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  
+  // Find a mysterious sounding voice if possible
+  const voices = window.speechSynthesis.getVoices();
+  // Prefer a deeper, slower voice
+  utterance.pitch = 0.5; // Lower pitch for spooky effect
+  utterance.rate = 0.8;  // Slower rate
+  utterance.volume = 0.8;
+
+  window.speechSynthesis.speak(utterance);
+}
+
+// ── Generate response (Question-Aware Tarot) ──────────────────────────
 async function generateResponse(question){
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:`You are the spirit channeled through an ancient Ouija board oracle. A seeker asks you a question.
+    // We fetch a list of cards and use a hash of the question to pick one
+    // This makes the 'fate' consistent for the same question
+    const res = await fetch('https://tarot-api-3hv5.onrender.com/api/v1/cards');
+    const data = await res.json();
+    const cards = data.cards;
+    
+    // Simple hash function for the question
+    let hash = 0;
+    for (let i = 0; i < question.length; i++) {
+        hash = ((hash << 5) - hash) + question.charCodeAt(i);
+        hash |= 0; 
+    }
+    const index = Math.abs(hash) % cards.length;
+    const card = cards[index];
+    
+    // The 'answer' to spell out on the board
+    let spellOutText = card.name.toUpperCase().replace(/[^A-Z0-9 ]/g,'');
+    
+    // If it's too long for a Ouija board, shorten it
+    if (spellOutText.length > 15) {
+        const parts = spellOutText.split(' ');
+        spellOutText = parts[parts.length - 1]; // Use the last word (e.g., "FOOL" from "THE FOOL")
+    }
 
-Respond with ONLY a valid JSON object. Nothing else — no markdown, no explanation.
-Format: {"answer": "YOUR ANSWER HERE"}
-
-Rules for the answer:
-- Use ONLY capital letters A-Z, digits 0-9, and spaces
-- No punctuation, apostrophes, or symbols whatsoever
-- Keep it short and mysterious: 1–6 words (rarely up to 10)
-- Be cryptic, poetic, and otherworldly
-- Sometimes answer just YES or NO
-- Examples: "YES", "NO", "BEYOND THE VEIL", "ASK AGAIN SOON", "3 MOONS", "TRUST THE DARK", "SEEK WITHIN", "THE DEAD KNOW ALL"`,
-        messages:[{role:'user',content:question}]
-      })
-    });
-    const data=await res.json();
-    const txt=data.content.map(b=>b.text||'').join('');
-    const clean=txt.replace(/```json|```/g,'').trim();
-    const parsed=JSON.parse(clean);
-    return parsed.answer.toUpperCase().replace(/[^A-Z0-9 ]/g,'').trim();
+    // The 'full meaning' for the audio output
+    const audioText = `The spirits reveal ${card.name}. It signifies ${card.meaning_up}`;
+    
+    console.log("Spirit Response:", { spellOutText, audioText });
+    
+    return { 
+        text: spellOutText.trim(), 
+        voice: audioText 
+    };
   } catch(e){
-    console.warn('API fallback',e);
-    const fb=['YES','NO','BEYOND KNOWING','SEEK WITHIN','ASK AGAIN','THE SPIRITS SPEAK','3 MOONS PASS'];
-    return fb[Math.floor(Math.random()*fb.length)];
+    console.warn('API fallback', e);
+    const fallbacks = [
+        { text: "YES", voice: "The spirits whisper yes." },
+        { text: "NO", voice: "The void answers with a cold no." },
+        { text: "SOON", voice: "It shall come to pass sooner than you think." },
+        { text: "WAIT", voice: "Patience, seeker. The time is not yet right." },
+        { text: "BEYOND", voice: "The answer lies beyond the veil of this world." }
+    ];
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
   }
 }
 
@@ -369,9 +401,15 @@ window.askQuestion=async function(){
   glowTarget=1.5;
 
   try {
-    const answer=await generateResponse(q);
+    const response = await generateResponse(q);
     statusEl.textContent='The board speaks…';
-    await spellOut(answer);
+    
+    // Start speaking the full mystical answer
+    speakAnswer(response.voice);
+    
+    // Spell out the key word on the board
+    await spellOut(response.text);
+    
     statusEl.textContent='Ask another question…';
   } catch(e){
     statusEl.textContent='The spirits are silent tonight.';
